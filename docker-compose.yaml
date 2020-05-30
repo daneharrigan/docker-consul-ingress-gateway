@@ -1,0 +1,11 @@
+version: "3.7"
+services:
+  ingress-gateway:
+    image: consul-ingress-gateway:1.8.0-beta2
+    environment:
+      - CONSUL_HTTP_ADDR=http://consul:8500
+      - CONSUL_GRPC_ADDR=consul:8502
+    depends_on:
+      - consul
+  consul:
+    image: consul:1.8.0-beta

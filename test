@@ -1,0 +1,20 @@
+#!/bin/sh
+
+teardown() {
+  docker-compose down
+}
+
+trap "teardown" EXIT
+
+docker-compose up -d
+docker-compose exec \
+  -e "GATEWAY_CONFIG=$(cat ingress-gateway.hcl)" \
+  consul \
+  /bin/sh -c 'echo $GATEWAY_CONFIG | consul config write -'
+
+CLUSTERS=$(docker-compose exec ingress-gateway curl http://localhost:9000/clusters)
+if [[ $CLUSTERS != *"consul.default.dc1"* ]]; then
+  echo "could not find consul" > /dev/stderr
+  echo $CLUSTERS
+  exit 1
+fi
